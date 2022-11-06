@@ -3,7 +3,8 @@
 # Install
 ## go get -u github.com/v-kolodii/gomemorycache
 
-func main() {
+## Usage:
+    func main() {
 	cache := gomemorycache.New()
 
 	cache.Set("userId", 42)
@@ -15,4 +16,4 @@ func main() {
 	userId := cache.Get("userId")
 
 	fmt.Println(userId)
-}
+    }
