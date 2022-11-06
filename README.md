@@ -5,15 +5,15 @@
 
 ## Usage:
     func main() {
-	cache := gomemorycache.New()
+        cache := gomemorycache.New()
 
-	cache.Set("userId", 42)
-	userId := cache.Get("userId")
+        cache.Set("userId", 42)
+        userId := cache.Get("userId")
 
-	fmt.Println(userId)
+        fmt.Println(userId)
 
-	cache.Delete("userId")
-	userId := cache.Get("userId")
+        cache.Delete("userId")
+        userId := cache.Get("userId")
 
-	fmt.Println(userId)
+        fmt.Println(userId)
     }
