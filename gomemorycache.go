@@ -1,8 +1,14 @@
 package gomemorycache
 
 import (
+	"context"
 	"errors"
+	"os"
+	"os/signal"
 	"sync"
+	"time"
+
+	"github.com/zhashkevych/scheduler"
 )
 
 type GoMemoryCache struct {
@@ -11,13 +17,38 @@ type GoMemoryCache struct {
 }
 
 type CacheItems struct {
-	Value interface{}
+	Value          interface{}
+	ExpirationTime time.Time
 }
 
 // constructor
 func New() *GoMemoryCache {
-	return &GoMemoryCache{
+	ctx := context.Background()
+	cache := GoMemoryCache{
 		cacheItems: make(map[string]CacheItems),
+	}
+	worker := scheduler.NewScheduler()
+	worker.Add(ctx, cache.cleanLoop, time.Second*1)
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, os.Interrupt)
+
+	<-quit
+	worker.Stop()
+
+	return &cache
+}
+
+func (c *GoMemoryCache) cleanLoop(ctx context.Context) {
+	c.mx.Lock()
+	defer c.mx.Unlock()
+
+	if len(c.cacheItems) > 0 {
+		for key, item := range c.cacheItems {
+			if item.ExpirationTime.Unix() < time.Now().Unix() {
+				delete(c.cacheItems, key)
+			}
+		}
 	}
 }
 
@@ -34,9 +65,13 @@ func (c *GoMemoryCache) Get(key string) (interface{}, error) {
 	return item.Value, nil
 }
 
-func (c *GoMemoryCache) Set(key string, val interface{}) {
+func (c *GoMemoryCache) Set(key string, val interface{}, ttl time.Duration) {
 	c.mx.Lock()
-	c.cacheItems[key] = CacheItems{Value: val}
+	expTime := time.Now().Add(ttl)
+	c.cacheItems[key] = CacheItems{
+		Value:          val,
+		ExpirationTime: expTime,
+	}
 	c.mx.Unlock()
 }
 
