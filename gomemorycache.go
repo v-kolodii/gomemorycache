@@ -40,9 +40,6 @@ func New() *GoMemoryCache {
 }
 
 func (c *GoMemoryCache) cleanLoop(ctx context.Context) {
-	c.mx.Lock()
-	defer c.mx.Unlock()
-
 	if len(c.cacheItems) > 0 {
 		for key, item := range c.cacheItems {
 			if item.ExpirationTime.Unix() < time.Now().Unix() {
