@@ -3,8 +3,6 @@ package gomemorycache
 import (
 	"context"
 	"errors"
-	"os"
-	"os/signal"
 	"sync"
 	"time"
 
