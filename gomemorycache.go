@@ -30,11 +30,11 @@ func New() *GoMemoryCache {
 	worker := scheduler.NewScheduler()
 	worker.Add(ctx, cache.cleanLoop, time.Second*1)
 
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt, os.Interrupt)
+	// quit := make(chan os.Signal, 1)
+	// signal.Notify(quit, os.Interrupt, os.Interrupt)
 
-	<-quit
-	worker.Stop()
+	// <-quit
+	// worker.Stop()
 
 	return &cache
 }
